@@ -22,12 +22,13 @@ def calculate_alpha_centrality(g: ig.Graph, alpha: float = 0.1) -> Dict[str, flo
     :return: Dictionary of node alpha centrality scores, where the key is the node name 
              and the value is the alpha centrality score.
     """
-    A = g.get_adjacency().data
-    degree_matrix = np.diag(g.degree())
+    A = g.get_adjacency()
+
     I = np.identity(len(g.vs))
 
     # (I - alpha * A) * c = degree_vector
-    M = I - alpha * np.array(A)
+    M = I - alpha * A
+
     degree_vector = np.array(g.degree())
     
     centrality = np.linalg.solve(M, degree_vector)
