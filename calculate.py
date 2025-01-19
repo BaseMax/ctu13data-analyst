@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import igraph as ig
 from typing import Dict
+from scipy.sparse import csr_matrix
 
 dataset_dir = r'C:\Users\MAX\Downloads\ctu-dataset'
 
@@ -22,22 +23,22 @@ def calculate_alpha_centrality(g: ig.Graph, alpha: float = 0.1) -> Dict[str, flo
     :return: Dictionary of node alpha centrality scores, where the key is the node name 
              and the value is the alpha centrality score.
     """
-    A = np.array(g.get_adjacency())
+    A = csr_matrix(g.get_adjacency().data)
 
-    I = np.identity(len(g.vs))
+    I = csr_matrix(np.identity(len(g.vs)))
 
     # (I - alpha * A) * c = degree_vector
     M = I - alpha * A
 
     degree_vector = np.array(g.degree())
-    
-    centrality = np.linalg.solve(M, degree_vector)
+
+    centrality = np.linalg.solve(M.toarray(), degree_vector)
     
     return {g.vs[i]['name']: centrality[i] for i in range(len(g.vs))}
 
 def create_graph_from_binetflow(binetflow_file: str) -> ig.Graph:
     """
-    Create a directed graph from a .binetflow file.
+    Create a directed graph from a .binetflow file efficiently.
 
     :param binetflow_file: str
         Path to the .binetflow file.
@@ -48,21 +49,16 @@ def create_graph_from_binetflow(binetflow_file: str) -> ig.Graph:
     df = pd.read_csv(binetflow_file, sep=',', header=0)
 
     print("Creating the graph...")
-    src_ip_column = 'SrcAddr'
-    dst_ip_column = 'DstAddr'
-    
-    g = ig.Graph(directed=True)
 
-    ip_addresses = pd.concat([df[src_ip_column], df[dst_ip_column]]).unique()
+    ip_addresses = np.unique(df[['SrcAddr', 'DstAddr']].values.flatten())
+
+    g = ig.Graph(directed=True)
     g.add_vertices(ip_addresses)
 
-    for _, row in df.iterrows():
-        src_ip = row[src_ip_column]
-        dst_ip = row[dst_ip_column]
-        g.add_edge(src_ip, dst_ip)
-    
-    return g
+    edges = list(zip(df['SrcAddr'], df['DstAddr']))
+    g.add_edges(edges)
 
+    return g
 
 def calculate_graph_attributes(g: ig.Graph) -> Dict[str, any]:
     """
@@ -78,22 +74,29 @@ def calculate_graph_attributes(g: ig.Graph) -> Dict[str, any]:
     print("Calculating graph parameters...")
     attributes = {}
 
-    attributes['degree'] = g.degree()
+    print("Calculating in-degree...")
+    in_degree = g.indegree()
+    max_in_degree = max(in_degree) if in_degree else 1
+    attributes['in_degree'] = [d / max_in_degree for d in in_degree]
 
-    attributes['in_degree'] = g.indegree()
+    print("Calculating out-degree...")
+    out_degree = g.outdegree()
+    max_out_degree = max(out_degree) if out_degree else 1
+    attributes['out_degree'] = [d / max_out_degree for d in out_degree]
 
-    attributes['out_degree'] = g.outdegree()
-
+    print("Calculating closeness...")
     attributes['closeness'] = g.closeness()
 
+    print("Calculating eigenvector centrality...")
     attributes['eigenvector'] = g.eigenvector_centrality()
 
+    print("Calculating pagerank...")
     attributes['pagerank'] = g.pagerank()
 
-    attributes['alpha_centrality'] = calculate_alpha_centrality(g, alpha=0.1)
+    # print("Calculating alpha centrality...")
+    # attributes['alpha_centrality'] = calculate_alpha_centrality(g, alpha=0.1)
 
     return attributes
-
 
 def save_results_to_csv(file_name: str, attributes: Dict[str, any]) -> None:
     """
@@ -105,7 +108,7 @@ def save_results_to_csv(file_name: str, attributes: Dict[str, any]) -> None:
         The graph attributes to save.
     """
     print("Saving results to CSV...")
-    
+
     results_df = pd.DataFrame(attributes)
     
     results_df.to_csv(file_name, index=False)
@@ -115,7 +118,7 @@ def save_results_to_csv(file_name: str, attributes: Dict[str, any]) -> None:
 for root, dirs, files in os.walk(dataset_dir):
     print(f"Processing directory: {root}")
 
-    if not root.endswith("\\5"):
+    if not root.endswith("\\11"):
         continue
 
     for file in files:
