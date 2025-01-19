@@ -22,7 +22,7 @@ def calculate_alpha_centrality(g: ig.Graph, alpha: float = 0.1) -> Dict[str, flo
     :return: Dictionary of node alpha centrality scores, where the key is the node name 
              and the value is the alpha centrality score.
     """
-    A = g.get_adjacency()
+    A = np.array(g.get_adjacency())
 
     I = np.identity(len(g.vs))
 
@@ -34,7 +34,6 @@ def calculate_alpha_centrality(g: ig.Graph, alpha: float = 0.1) -> Dict[str, flo
     centrality = np.linalg.solve(M, degree_vector)
     
     return {g.vs[i]['name']: centrality[i] for i in range(len(g.vs))}
-
 
 def create_graph_from_binetflow(binetflow_file: str) -> ig.Graph:
     """
@@ -105,6 +104,8 @@ def save_results_to_csv(file_name: str, attributes: Dict[str, any]) -> None:
     :param attributes: dict
         The graph attributes to save.
     """
+    print("Saving results to CSV...")
+    
     results_df = pd.DataFrame(attributes)
     
     results_df.to_csv(file_name, index=False)
@@ -126,7 +127,7 @@ for root, dirs, files in os.walk(dataset_dir):
                 g = create_graph_from_binetflow(binetflow_file)
                 
                 attributes = calculate_graph_attributes(g)
-                
+
                 result_file = os.path.join(root, f"{file}_attributes.csv")
                 save_results_to_csv(result_file, attributes)
                 
