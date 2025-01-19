@@ -59,6 +59,26 @@ Due to the enormous size of the graph generated from the dataset, it is almost i
 
 Therefore, instead of attempting to draw the graph, we focus on calculating and extracting the necessary graph parameters (such as degree, centrality measures, etc.) and save these values in a CSV file for further analysis. This approach allows us to efficiently handle large-scale graphs and derive meaningful insights without the need for expensive and impractical visualizations.
 
+### Wireshark and Npcap Installation
+
+To analyze the network traffic data from the CTU-13 dataset, you can utilize Wireshark, a powerful network protocol analyzer. It allows you to capture and inspect network packets, making it easier to debug and explore network traffic.
+
+#### Wireshark Installation
+
+1. Download the Wireshark installer from the official website:  
+   [Wireshark 4.4.3 (Windows)](https://2.na.dl.wireshark.org/win64/Wireshark-4.4.3-x64.exe)
+
+2. During installation, you will be prompted to install **Npcap**, a packet capture library. It is highly recommended to install it, as it allows Wireshark to capture network traffic and perform real-time analysis.
+
+3. Follow the installation steps, and once complete, you can start analyzing the `.binetflow` files and other network capture data in the CTU-13 dataset with Wireshark.
+
+#### Npcap Installation
+
+Npcap is an essential component for network capture and is included in the Wireshark installation process. If you decide to install Wireshark, make sure that the **Npcap** option is selected during the setup. If you prefer to install Npcap separately, you can download it here:  
+[Npcap Download](https://nmap.org/npcap/)
+
+Once installed, Npcap will allow you to capture network data using tools like Wireshark or other compatible software.
+
 ## Installation
 
 You can install the necessary dependencies using `pip`:
