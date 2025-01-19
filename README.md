@@ -57,7 +57,7 @@ python calculate.py
 You can install the necessary dependencies using `pip`:
 
 ```bash
-pip install pandas networkx igraph matplotlib
+pip install pandas networkx igraph matplotlib numpy
 ```
 
 ## Contributing
