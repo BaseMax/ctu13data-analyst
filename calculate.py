@@ -49,13 +49,17 @@ def create_graph_from_binetflow(binetflow_file: str) -> ig.Graph:
     df = pd.read_csv(binetflow_file, sep=',', header=0)
 
     print("Creating the graph...")
+    g = ig.Graph(directed=True)
 
     ip_addresses = np.unique(df[['SrcAddr', 'DstAddr']].values.flatten())
 
-    g = ig.Graph(directed=True)
+    print("Adding vertices...")
     g.add_vertices(ip_addresses)
 
-    edges = list(zip(df['SrcAddr'], df['DstAddr']))
+    print("Filtering edges...")
+    edges = [(src, dst) for src, dst in zip(df['SrcAddr'], df['DstAddr']) if src != dst]
+
+    print("Adding edges...")
     g.add_edges(edges)
 
     return g
