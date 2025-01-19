@@ -48,9 +48,16 @@ This script calculates various graph metrics, including degree, centrality measu
 3. The results are saved as a CSV file in the same directory.
 
 #### Example Usage:
+
 ```bash
 python calculate.py
 ```
+
+## Note on Graph Visualization
+
+Due to the enormous size of the graph generated from the dataset, it is almost impossible to draw and save it as a single image. The sheer number of nodes and edges would make the visualization process computationally expensive and result in images that are impractical to analyze.
+
+Therefore, instead of attempting to draw the graph, we focus on calculating and extracting the necessary graph parameters (such as degree, centrality measures, etc.) and save these values in a CSV file for further analysis. This approach allows us to efficiently handle large-scale graphs and derive meaningful insights without the need for expensive and impractical visualizations.
 
 ## Installation
 
